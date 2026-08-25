@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌻 大自然中的黄金分割 · 向日葵</title>
+    <style>
+        /* ===== 马卡龙主题 · 全局重置 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'PingFang SC', 'Helvetica Neue', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            background: radial-gradient(circle at 20% 30%, #fbf3e8, #f5e6fa 70%, #dcedf6 100%);
+            /* 马卡龙背景：奶油 → 淡紫 → 淡蓝 */
+            color: #4a3f5c;
+        }
+
+        /* ===== 主容器 · 马卡龙玻璃质感 ===== */
+        .container {
+            max-width: 820px;
+            width: 100%;
+            background: rgba(255, 252, 248, 0.78);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 56px;
+            padding: 32px 36px 40px;
+            box-shadow: 0 25px 60px rgba(160, 140, 180, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            transition: all 0.3s;
+        }
+
+        /* ===== 标题区 ===== */
+        .header {
+            text-align: center;
+            margin-bottom: 14px;
+        }
+
+        .header h1 {
+            font-size: 30px;
+            font-weight: 700;
+            color: #6b5b7b;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 12px rgba(180, 150, 200, 0.2);
+        }
+
+        .header h1 span {
+            display: inline-block;
+            animation: float 4s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-4px);
+            }
+        }
+
+        .header .sub {
+            font-size: 14px;
+            color: #a794b0;
+            letter-spacing: 4px;
+            margin-top: 2px;
+            font-weight: 400;
+            background: rgba(255, 255, 255, 0.4);
+            display: inline-block;
+            padding: 0 18px;
+            border-radius: 40px;
+            backdrop-filter: blur(4px);
+        }
+
+        /* ===== 画布容器 ===== */
+        .canvas-wrapper {
+            position: relative;
+            background: radial-gradient(ellipse at center, #fcf7f0, #f0e8f5);
+            border-radius: 40px;
+            overflow: hidden;
+            box-shadow: inset 0 0 40px rgba(180, 150, 200, 0.15), 0 8px 32px rgba(140, 120, 160, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            margin: 6px 0 16px 0;
+            aspect-ratio: 1 / 1;
+            width: 100%;
+        }
+
+        #sunflowerCanvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            cursor: default;
+        }
+
+        /* ===== 密集度徽章 · 马卡龙风格 ===== */
+        .density-badge {
+            position: absolute;
+            bottom: 16px;
+            right: 18px;
+            background: rgba(255, 248, 245, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 40px;
+            padding: 6px 16px 6px 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            font-size: 13px;
+            pointer-events: none;
+            box-shadow: 0 4px 16px rgba(160, 140, 180, 0.15);
+            color: #5a4b6a;
+        }
+
+        .density-badge .label {
+            color: #9a89a8;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+        }
+
+        .density-badge .value {
+            font-weight: 700;
+            font-size: 17px;
+            min-width: 48px;
+            text-align: center;
+            color: #b28b5a;
+            transition: color 0.3s;
+        }
+
+        .density-badge .stars {
+            font-size: 15px;
+            letter-spacing: 2px;
+            min-width: 80px;
+            text-align: right;
+            color: #f5c27b;
+        }
+
+        /* ===== 控制区 ===== */
+        .controls {
+            margin-top: 4px;
+        }
+
+        /* 滑块行 */
+        .slider-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .slider-row label {
+            font-size: 15px;
+            font-weight: 500;
+            color: #6b5b7b;
+            min-width: 44px;
+        }
+
+        .slider-row input[type="range"] {
+            flex: 1;
+            min-width: 140px;
+            height: 5px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: linear-gradient(90deg, #e8dcee, #f5cba7);
+            border-radius: 10px;
+            outline: none;
+            transition: background 0.2s;
+            box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .slider-row input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #ffdbd0, #f5b7a1);
+            cursor: pointer;
+            box-shadow: 0 2px 12px rgba(245, 180, 160, 0.4), 0 2px 6px rgba(0, 0, 0, 0.05);
+            border: 3px solid white;
+            transition: all 0.15s;
+        }
+
+        .slider-row input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.12);
+            box-shadow: 0 4px 20px rgba(245, 180, 160, 0.5);
+        }
+
+        .slider-row input[type="range"]::-moz-range-thumb {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #ffdbd0, #f5b7a1);
+            cursor: pointer;
+            border: 3px solid white;
+            box-shadow: 0 2px 12px rgba(245, 180, 160, 0.4);
+        }
+
+        .angle-display {
+            font-size: 22px;
+            font-weight: 700;
+            min-width: 72px;
+            text-align: center;
+            color: #b28b5a;
+            font-variant-numeric: tabular-nums;
+            background: rgba(255, 255, 255, 0.5);
+            padding: 2px 14px;
+            border-radius: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(4px);
+        }
+
+        /* 按钮行 · 马卡龙色块 */
+        .button-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 8px 20px;
+            border-radius: 40px;
+            border: none;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #5a4b6a;
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 2px 8px rgba(160, 140, 180, 0.08);
+            backdrop-filter: blur(4px);
+            letter-spacing: 0.3px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(160, 140, 180, 0.15);
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .btn:active {
+            transform: translateY(0px) scale(0.97);
+        }
+
+        /* 马卡龙预设色 */
+        .btn-macaron-yellow {
+            background: #fdf6b2;
+            border-color: #fcf0a0;
+            color: #7a6a3a;
+        }
+        .btn-macaron-yellow:hover {
+            background: #fff5b8;
+            box-shadow: 0 6px 20px rgba(245, 215, 100, 0.25);
+        }
+
+        .btn-macaron-pink {
+            background: #ffd1dc;
+            border-color: #fbc4d0;
+            color: #7a4a5a;
+        }
+        .btn-macaron-pink:hover {
+            background: #ffdbe4;
+            box-shadow: 0 6px 20px rgba(255, 180, 190, 0.2);
+        }
+
+        .btn-macaron-blue {
+            background: #bae1ff;
+            border-color: #a8d4f5;
+            color: #3a5a7a;
+        }
+        .btn-macaron-blue:hover {
+            background: #c8e8ff;
+            box-shadow: 0 6px 20px rgba(150, 200, 255, 0.25);
+        }
+
+        .btn-macaron-mint {
+            background: #baffc9;
+            border-color: #a8f0b8;
+            color: #3a6a4a;
+        }
+        .btn-macaron-mint:hover {
+            background: #c8ffd8;
+            box-shadow: 0 6px 20px rgba(150, 230, 180, 0.25);
+        }
+
+        .btn-macaron-lavender {
+            background: #e8b4f8;
+            border-color: #dba0ed;
+            color: #5a3a6a;
+        }
+        .btn-macaron-lavender:hover {
+            background: #f0c4ff;
+            box-shadow: 0 6px 20px rgba(200, 150, 230, 0.25);
+        }
+
+        .btn-auto {
+            background: #d4e2f7;
+            border-color: #c0d4ed;
+            color: #3a5a7a;
+        }
+        .btn-auto:hover {
+            background: #ddeaff;
+        }
+        .btn-auto.running {
+            background: #f7d4d4;
+            border-color: #edc0c0;
+            color: #7a4a4a;
+            box-shadow: 0 0 0 2px rgba(255, 150, 150, 0.2);
+        }
+
+        /* ===== 密集度进度条 · 马卡龙 ===== */
+        .density-bar-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 4px 0 10px 0;
+            flex-wrap: wrap;
+        }
+
+        .density-bar-row .label {
+            font-size: 14px;
+            color: #9a89a8;
+            min-width: 56px;
+            font-weight: 400;
+        }
+
+        .density-track {
+            flex: 1;
+            min-width: 100px;
+            height: 8px;
+            background: rgba(200, 180, 210, 0.25);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 6px rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+
+        .density-fill {
+            height: 100%;
+            width: 0%;
+            border-radius: 20px;
+            background: linear-gradient(90deg, #f5cba7, #f5b7a1, #f5a0b0, #c9a7eb);
+            transition: width 0.15s ease-out;
+            box-shadow: 0 0 20px rgba(245, 180, 160, 0.15);
+        }
+
+        .density-text {
+            font-size: 15px;
+            font-weight: 600;
+            min-width: 70px;
+            text-align: right;
+            color: #b28b5a;
+            font-variant-numeric: tabular-nums;
+            background: rgba(255, 255, 255, 0.3);
+            padding: 0 12px;
+            border-radius: 30px;
+        }
+
+        /* ===== 原理介绍 · 马卡龙卡片 ===== */
+        .principle {
+            margin-top: 20px;
+            padding: 18px 22px 20px;
+            background: rgba(255, 248, 245, 0.5);
+            border-radius: 28px;
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(4px);
+            transition: all 0.3s;
+        }
+
+        .principle summary {
+            font-size: 16px;
+            font-weight: 600;
+            color: #7a6a8a;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            list-style: none;
+            padding: 2px 0;
+        }
+
+        .principle summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .principle summary::before {
+            content: '🍃 ';
+            font-size: 18px;
+        }
+
+        .principle summary::after {
+            content: ' ▾';
+            font-size: 14px;
+            color: #b0a0b8;
+            transition: transform 0.3s;
+        }
+
+        .principle[open] summary::after {
+            transform: rotate(180deg);
+        }
+
+        .principle-content {
+            margin-top: 14px;
+            font-size: 14.5px;
+            line-height: 1.8;
+            color: #5a4b6a;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .principle-content p {
+            margin: 0;
+        }
+
+        .principle-content .highlight {
+            color: #c27a5a;
+            font-weight: 600;
+        }
+
+        .principle-content .formula {
+            background: rgba(255, 255, 255, 0.6);
+            padding: 10px 16px;
+            border-radius: 16px;
+            font-family: 'Courier New', monospace;
+            font-size: 15px;
+            color: #8a6a5a;
+            border-left: 4px solid #f5cba7;
+            margin: 4px 0;
+            text-align: center;
+            letter-spacing: 0.5px;
+            backdrop-filter: blur(4px);
+        }
+
+        .principle-content .footnote {
+            font-size: 13px;
+            color: #b0a0b8;
+            margin-top: 2px;
+        }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 640px) {
+            .container {
+                padding: 18px 16px 26px;
+                border-radius: 36px;
+            }
+            .header h1 {
+                font-size: 24px;
+            }
+            .header .sub {
+                font-size: 12px;
+                letter-spacing: 2px;
+            }
+            .slider-row {
+                gap: 10px;
+            }
+            .slider-row label {
+                font-size: 13px;
+                min-width: 34px;
+            }
+            .angle-display {
+                font-size: 18px;
+                min-width: 60px;
+                padding: 0 10px;
+            }
+            .btn {
+                font-size: 12px;
+                padding: 6px 14px;
+            }
+            .density-badge {
+                bottom: 10px;
+                right: 12px;
+                padding: 4px 12px 4px 10px;
+                font-size: 11px;
+                gap: 6px;
+                border-radius: 30px;
+            }
+            .density-badge .value {
+                font-size: 14px;
+                min-width: 36px;
+            }
+            .density-badge .stars {
+                font-size: 12px;
+                min-width: 60px;
+            }
+            .principle-content {
+                font-size: 13px;
+            }
+            .principle-content .formula {
+                font-size: 13px;
+                padding: 8px 12px;
+            }
+            .density-bar-row .label {
+                font-size: 12px;
+                min-width: 44px;
+            }
+            .density-text {
+                font-size: 13px;
+                min-width: 56px;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .container {
+                padding: 12px 10px 18px;
+                border-radius: 28px;
+            }
+            .button-row {
+                gap: 5px;
+            }
+            .btn {
+                font-size: 11px;
+                padding: 5px 10px;
+            }
+            .slider-row input[type="range"] {
+                min-width: 80px;
+            }
+            .angle-display {
+                font-size: 15px;
+                min-width: 50px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- 标题 -->
+        <div class="header">
+            <h1><span>🌻</span> 大自然中的黄金分割</h1>
+            <div class="sub">向日葵 · 沃格尔模型</div>
+        </div>
+
+        <!-- 画布 -->
+        <div class="canvas-wrapper">
+            <canvas id="sunflowerCanvas"></canvas>
+            <!-- 密集度徽章 -->
+            <div class="density-badge" id="densityBadge">
+                <span class="label">密集度</span>
+                <span class="value" id="densityValue">100%</span>
+                <span class="stars" id="densityStars">★★★★★</span>
+            </div>
+        </div>
+
+        <!-- 控制区 -->
+        <div class="controls">
+            <!-- 角度滑块 -->
+            <div class="slider-row">
+                <label>角度</label>
+                <input type="range" id="angleSlider" min="0" max="360" step="0.05" value="137.5">
+                <span class="angle-display" id="angleDisplay">137.50°</span>
+            </div>
+
+            <!-- 按钮行 · 马卡龙配色 -->
+            <div class="button-row">
+                <button class="btn btn-macaron-yellow" id="btnGolden">✨ 黄金 137.5°</button>
+                <button class="btn btn-macaron-pink" id="btn90">90°</button>
+                <button class="btn btn-macaron-blue" id="btn180">180°</button>
+                <button class="btn btn-macaron-lavender" id="btn222">222.5°</button>
+                <button class="btn btn-macaron-mint" id="btn300">300°</button>
+                <button class="btn btn-auto" id="btnAuto">▶ 自动演示</button>
+            </div>
+
+            <!-- 密集度进度条 -->
+            <div class="density-bar-row">
+                <span class="label">密集度</span>
+                <div class="density-track">
+                    <div class="density-fill" id="densityFill" style="width:100%;"></div>
+                </div>
+                <span class="density-text" id="densityPercent">100%</span>
+            </div>
+        </div>
+
+        <!-- 原理介绍 -->
+        <details class="principle" id="principleDetails">
+            <summary>🍃 黄金分割原理 · 自然之美</summary>
+            <div class="principle-content">
+                <p>
+                    <span class="highlight">黄金角度</span> ≈ 137.5078° 是圆周 360° 按黄金比例 φ ≈ 1.618 分割所得：
+                </p>
+                <div class="formula">
+                    137.5° = 360° / φ² &nbsp; &nbsp; ( φ = (1 + √5) / 2 ≈ 1.618 )
+                </div>
+                <p>
+                    向日葵种子按 <span class="highlight">沃格尔模型</span> 排列：
+                    第 n 颗种子的极坐标为
+                    <span style="color:#b28b5a; font-weight:500;">r = c√n</span> ，
+                    <span style="color:#b28b5a; font-weight:500;">θ = n · α</span> ，
+                    其中 α 为相邻种子间的角度。
+                </p>
+                <p>
+                    当 <span class="highlight">α = 137.5°</span> 时，种子在花盘上
+                    <span class="highlight">分布最均匀、最密集</span> ，
+                    形成左右两组反向螺旋（斐波那契螺旋），
+                    使每颗种子都能获得最大的生长空间和光照。
+                </p>
+                <p style="font-size:13px; color:#b0a0b8;">
+                    🍃 拖动滑块调整角度，观察种子排列变化。当角度接近 137.5° 时，密集度达到最高。
+                </p>
+            </div>
+        </details>
+    </div>
+
+    <script>
+        // ============================================================
+        //  核心逻辑 · 带花瓣的向日葵 + 马卡龙视觉
+        // ============================================================
+
+        (function() {
+            'use strict';
+
+            // ----- DOM 引用 -----
+            const canvas = document.getElementById('sunflowerCanvas');
+            const ctx = canvas.getContext('2d');
+
+            const angleSlider = document.getElementById('angleSlider');
+            const angleDisplay = document.getElementById('angleDisplay');
+            const densityFill = document.getElementById('densityFill');
+            const densityPercent = document.getElementById('densityPercent');
+            const densityValue = document.getElementById('densityValue');
+            const densityStars = document.getElementById('densityStars');
+
+            const btnGolden = document.getElementById('btnGolden');
+            const btn90 = document.getElementById('btn90');
+            const btn180 = document.getElementById('btn180');
+            const btn222 = document.getElementById('btn222');
+            const btn300 = document.getElementById('btn300');
+            const btnAuto = document.getElementById('btnAuto');
+
+            // ----- 参数 -----
+            const SEED_COUNT = 380;
+            const GOLDEN_ANGLE = 137.5078;
+            let currentAngle = GOLDEN_ANGLE;
+            let autoMode = false;
+            let autoDirection = 1;
+            let animFrameId = null;
+
+            // ----- 画布尺寸自适应 -----
+            function resizeCanvas() {
+                const rect = canvas.parentElement.getBoundingClientRect();
+                const size = rect.width;
+                const dpr = window.devicePixelRatio || 1;
+                canvas.width = size * dpr;
+                canvas.height = size * dpr;
+                canvas.style.width = size + 'px';
+                canvas.style.height = size + 'px';
+                ctx.setTransform(1, 0, 0, 1, 0, 0);
+                ctx.scale(dpr, dpr);
+                canvas._logicalSize = size;
+                drawSunflower(currentAngle);
+            }
+
+            // ----- 绘制花瓣 (马卡龙色) -----
+            function drawPetals(ctx, cx, cy, maxR, angleDeg) {
+                const petalCount = 55;
+                const baseAngle = angleDeg * Math.PI / 180;
+
+                // 两层花瓣：外层浅色，内层深一点
+                const layers = [
+                    { count: 55, offset: 0, scale: 1.0, color1: '#fce8b2', color2: '#f5dba8' },
+                    { count: 34, offset: 0.5, scale: 0.85, color1: '#ffd1b5', color2: '#f5c0a0' }
+                ];
+
+                layers.forEach(layer => {
+                    const count = layer.count;
+                    const scaleFactor = layer.scale;
+                    const offsetAngle = layer.offset * 2 * Math.PI / count;
+
+                    for (let i = 0; i < count; i++) {
+                        const theta = i * 2 * Math.PI / count + offsetAngle + baseAngle * 0.1;
+                        const innerR = maxR * 0.78 * scaleFactor;
+                        const outerR = maxR * (1.22 + 0.08 * Math.sin(i * 5)) * scaleFactor;
+                        const width = maxR * 0.18 * scaleFactor;
+
+                        // 花瓣形状：水滴/椭圆
+                        ctx.save();
+                        ctx.translate(cx, cy);
+                        ctx.rotate(theta);
+
+                        // 渐变填充
+                        const grad = ctx.createLinearGradient(innerR, 0, outerR, 0);
+                        grad.addColorStop(0, layer.color1);
+                        grad.addColorStop(0.7, layer.color2);
+                        grad.addColorStop(1, layer.color2);
+                        ctx.fillStyle = grad;
+                        ctx.shadowColor = 'rgba(200, 180, 160, 0.1)';
+                        ctx.shadowBlur = 10;
+
+                        ctx.beginPath();
+                        ctx.moveTo(innerR, 0);
+                        ctx.quadraticCurveTo(innerR + (outerR - innerR) * 0.4, -width, outerR, 0);
+                        ctx.quadraticCurveTo(innerR + (outerR - innerR) * 0.4, width, innerR, 0);
+                        ctx.closePath();
+                        ctx.fill();
+
+                        // 花瓣纹理线 (马卡龙装饰)
+                        ctx.shadowBlur = 0;
+                        ctx.strokeStyle = 'rgba(255,255,240,0.25)';
+                        ctx.lineWidth = 1.5;
+                        ctx.beginPath();
+                        ctx.moveTo(innerR + 4, -width * 0.3);
+                        ctx.lineTo(outerR * 0.6, -width * 0.2);
+                        ctx.stroke();
+                        ctx.beginPath();
+                        ctx.moveTo(innerR + 4, width * 0.3);
+                        ctx.lineTo(outerR * 0.6, width * 0.2);
+                        ctx.stroke();
+
+                        ctx.restore();
+                    }
+                });
+            }
+
+            // ----- 绘制向日葵 (核心) -----
+            function drawSunflower(angleDeg) {
+                const size = canvas._logicalSize || canvas.width;
+                const cx = size / 2;
+                const cy = size / 2;
+                const maxR = size * 0.44;
+
+                // 清空
+                ctx.clearRect(0, 0, size, size);
+
+                // ---- 马卡龙背景光晕 ----
+                const bgGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, maxR * 1.1);
+                bgGrad.addColorStop(0, 'rgba(255, 245, 235, 0.3)');
+                bgGrad.addColorStop(0.6, 'rgba(240, 225, 240, 0.15)');
+                bgGrad.addColorStop(1, 'rgba(220, 230, 245, 0)');
+                ctx.fillStyle = bgGrad;
+                ctx.fillRect(0, 0, size, size);
+
+                // ---- 绘制花瓣 (在种子下面) ----
+                drawPetals(ctx, cx, cy, maxR, angleDeg);
+
+                // ---- 绘制沃格尔种子 ----
+                const angleRad = angleDeg * Math.PI / 180;
+                const scale = maxR / Math.sqrt(SEED_COUNT);
+
+                // 种子颜色：马卡龙棕色/焦糖/奶油
+                const colors = [
+                    '#c9a88a', '#b8927a', '#dbbaa0', '#a88570', '#e5cbb5',
+                    '#b88a72', '#d4b09a', '#c09a82', '#e8d0be', '#a67a62'
+                ];
+
+                for (let i = 1; i <= SEED_COUNT; i++) {
+                    const theta = i * angleRad;
+                    const r = scale * Math.sqrt(i);
+                    const x = cx + r * Math.cos(theta);
+                    const y = cy + r * Math.sin(theta);
+
+                    if (x < -10 || x > size + 10 || y < -10 || y > size + 10) continue;
+
+                    const t = r / maxR;
+                    const baseSize = 2.4 + 4.2 * (1 - t * 0.7);
+
+                    // 随机颜色变化 (基于i)
+                    const colorIdx = i % colors.length;
+                    let color = colors[colorIdx];
+                    // 中心更深，边缘更浅
+                    const bright = 0.85 + 0.15 * (1 - t);
+                    ctx.fillStyle = color;
+                    ctx.globalAlpha = 0.85 + 0.15 * (1 - t);
+
+                    // 阴影
+                    ctx.shadowColor = 'rgba(160, 130, 110, 0.1)';
+                    ctx.shadowBlur = 6;
+
+                    ctx.beginPath();
+                    ctx.arc(x, y, baseSize * 0.5, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // 高光
+                    ctx.shadowBlur = 0;
+                    ctx.fillStyle = `rgba(255, 240, 220, ${0.15 + 0.1 * (1 - t)})`;
+                    ctx.beginPath();
+                    ctx.arc(x - baseSize * 0.12, y - baseSize * 0.12, baseSize * 0.15, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    ctx.globalAlpha = 1.0;
+                }
+                ctx.shadowBlur = 0;
+                ctx.shadowColor = 'transparent';
+
+                // ---- 花盘中心装饰 (马卡龙风格) ----
+                const centerGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, maxR * 0.12);
+                centerGrad.addColorStop(0, 'rgba(200, 170, 140, 0.25)');
+                centerGrad.addColorStop(0.5, 'rgba(180, 150, 130, 0.1)');
+                centerGrad.addColorStop(1, 'rgba(0,0,0,0)');
+                ctx.fillStyle = centerGrad;
+                ctx.beginPath();
+                ctx.arc(cx, cy, maxR * 0.15, 0, Math.PI * 2);
+                ctx.fill();
+
+                // ---- 如果角度接近黄金角度，显示马卡龙光晕 ----
+                const diff = Math.abs(angleDeg - GOLDEN_ANGLE);
+                if (diff < 3.0) {
+                    const pulse = 0.6 + 0.4 * Math.sin(Date.now() / 500);
+                    const alpha2 = 0.08 * pulse;
+                    ctx.fillStyle = `rgba(245, 215, 180, ${alpha2})`;
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, maxR * 0.92, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    const glow = ctx.createRadialGradient(cx, cy, maxR * 0.7, cx, cy, maxR * 1.05);
+                    glow.addColorStop(0, 'rgba(245, 215, 180, 0)');
+                    glow.addColorStop(0.6, `rgba(245, 215, 180, ${0.03 * pulse})`);
+                    glow.addColorStop(1, 'rgba(245, 215, 180, 0)');
+                    ctx.fillStyle = glow;
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, maxR * 1.05, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                // ---- 更新密集度 ----
+                updateDensity(angleDeg);
+            }
+
+            // ----- 密集度计算 & UI 更新 -----
+            function updateDensity(angleDeg) {
+                const sigma = 22.0;
+                const diff = angleDeg - GOLDEN_ANGLE;
+                let diffWrapped = diff;
+                if (diffWrapped > 180) diffWrapped -= 360;
+                if (diffWrapped < -180) diffWrapped += 360;
+
+                const rawDensity = Math.exp(-(diffWrapped * diffWrapped) / (2 * sigma * sigma));
+                const density = Math.max(0, Math.min(1, rawDensity));
+                const percent = Math.round(density * 100);
+
+                densityFill.style.width = percent + '%';
+                densityPercent.textContent = percent + '%';
+                densityValue.textContent = percent + '%';
+
+                let stars = '☆☆☆☆☆';
+                let starColor = '#d0c0d0';
+                if (percent >= 95) { stars = '★★★★★';
+                    starColor = '#f5c27b'; } else if (percent >= 80) { stars = '★★★★☆';
+                    starColor = '#f0b86a'; } else if (percent >= 60) { stars = '★★★☆☆';
+                    starColor = '#e0a85a'; } else if (percent >= 35) { stars = '★★☆☆☆';
+                    starColor = '#c8904a'; } else { stars = '★☆☆☆☆';
+                    starColor = '#b07840'; }
+
+                densityStars.textContent = stars;
+                densityStars.style.color = starColor;
+                const hue = 30 + 20 * (1 - density);
+                densityValue.style.color = `hsl(${hue}, 60%, ${45 + 30 * density}%)`;
+            }
+
+            // ----- 交互控制 -----
+            function setAngle(deg) {
+                let d = deg % 360;
+                if (d < 0) d += 360;
+                currentAngle = d;
+                angleSlider.value = d;
+                angleDisplay.textContent = d.toFixed(2) + '°';
+                drawSunflower(d);
+            }
+
+            angleSlider.addEventListener('input', function() {
+                if (autoMode) stopAuto();
+                const val = parseFloat(this.value);
+                setAngle(val);
+            });
+
+            btnGolden.addEventListener('click', function() {
+                if (autoMode) stopAuto();
+                setAngle(GOLDEN_ANGLE);
+                this.classList.add('btn-macaron-yellow');
+                setTimeout(() => {}, 300);
+            });
+
+            btn90.addEventListener('click', function() { if (autoMode) stopAuto();
+                setAngle(90); });
+            btn180.addEventListener('click', function() { if (autoMode) stopAuto();
+                setAngle(180); });
+            btn222.addEventListener('click', function() { if (autoMode) stopAuto();
+                setAngle(222.5); });
+            btn300.addEventListener('click', function() { if (autoMode) stopAuto();
+                setAngle(300); });
+
+            // ----- 自动演示 -----
+            function startAuto() {
+                if (autoMode) return;
+                autoMode = true;
+                autoDirection = 1;
+                btnAuto.textContent = '⏹ 停止';
+                btnAuto.classList.add('running');
+                if (Math.abs(currentAngle - GOLDEN_ANGLE) < 5) setAngle(80);
+                autoStep();
+            }
+
+            function stopAuto() {
+                autoMode = false;
+                btnAuto.textContent = '▶ 自动演示';
+                btnAuto.classList.remove('running');
+                if (animFrameId) {
+                    cancelAnimationFrame(animFrameId);
+                    animFrameId = null;
+                }
+            }
+
+            function autoStep() {
+                if (!autoMode) return;
+                let speed = 0.7;
+                let newAngle = currentAngle + speed * autoDirection;
+
+                const diff = newAngle - GOLDEN_ANGLE;
+                let diffWrapped = diff;
+                if (diffWrapped > 180) diffWrapped -= 360;
+                if (diffWrapped < -180) diffWrapped += 360;
+                if (Math.abs(diffWrapped) < 25) {
+                    const slowFactor = Math.max(0.15, Math.abs(diffWrapped) / 25);
+                    newAngle = currentAngle + speed * autoDirection * slowFactor * 0.7;
+                }
+
+                if (newAngle > 360) newAngle -= 360;
+                else if (newAngle < 0) newAngle += 360;
+
+                setAngle(newAngle);
+
+                const diff2 = newAngle - GOLDEN_ANGLE;
+                let diffWrapped2 = diff2;
+                if (diffWrapped2 > 180) diffWrapped2 -= 360;
+                if (diffWrapped2 < -180) diffWrapped2 += 360;
+
+                if (Math.abs(diffWrapped2) < 0.8) {
+                    setTimeout(() => {
+                        if (autoMode) animFrameId = requestAnimationFrame(autoStep);
+                    }, 80);
+                    return;
+                }
+                animFrameId = requestAnimationFrame(autoStep);
+            }
+
+            btnAuto.addEventListener('click', function() {
+                if (autoMode) stopAuto();
+                else startAuto();
+            });
+
+            // ----- 窗口自适应 -----
+            let resizeTimer = null;
+            window.addEventListener('resize', function() {
+                if (resizeTimer) clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(() => {
+                    resizeCanvas();
+                    resizeTimer = null;
+                }, 120);
+            });
+
+            if (window.ResizeObserver) {
+                const ro = new ResizeObserver(() => {
+                    if (resizeTimer) clearTimeout(resizeTimer);
+                    resizeTimer = setTimeout(() => {
+                        resizeCanvas();
+                        resizeTimer = null;
+                    }, 100);
+                });
+                ro.observe(canvas.parentElement);
+            }
+
+            // ----- 初始化 -----
+            function init() {
+                resizeCanvas();
+                setAngle(GOLDEN_ANGLE);
+                document.getElementById('principleDetails').open = true;
+            }
+
+            if (document.readyState === 'complete') init();
+            else window.addEventListener('load', init);
+
+            window.__sunflower = {
+                draw: drawSunflower,
+                setAngle: setAngle,
+                startAuto: startAuto,
+                stopAuto: stopAuto,
+                currentAngle: () => currentAngle,
+                GOLDEN_ANGLE: GOLDEN_ANGLE
+            };
+
+        })();
+    </script>
+
+</body>
+</html>
